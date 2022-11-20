@@ -1,0 +1,30 @@
+//API 1
+GET http://localhost:3000/players/
+
+###
+//API2
+
+GET http://localhost:3000/players/2/
+
+###
+PUT  http://localhost:3000/players/4/
+Content-Type:application/json
+
+{
+  "playerName": "Raju"
+}
+
+### 
+//API4 
+GET http://localhost:3000/matches/18/
+
+###
+//API5
+GET http://localhost:3000/matches/1/
+### 
+//API6 
+GET http://localhost:3000/players/2/
+
+### 
+//API7 
+GET http://localhost:3000/players/matches/2/
