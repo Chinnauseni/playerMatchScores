@@ -27,4 +27,4 @@ GET http://localhost:3000/players/2/
 
 ### 
 //API7 
-GET http://localhost:3000/players/matches/2/
+GET http://localhost:3000/players/2/playerScores/

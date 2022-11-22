@@ -46,7 +46,7 @@ app.get("/players/", async (request, response) => {
       FROM player_details;`;
 
   const playersArray = await db.all(getPlayersQuery);
-  response.send(playersArray.map((eachPlayer) => convertDbObject(eachPlayer)));
+  response.send(playersArray.map((eachItem) => convertDbObject(eachItem)));
 });
 
 //Return a specific player
@@ -60,7 +60,7 @@ app.get("/players/:playerId", async (request, response) => {
        WHERE player_id = ${playerId};`;
 
   const player = await db.get(getPlayerQuery);
-  response.send(player);
+  response.send(convertDbObject(player));
 });
 //API3
 
@@ -85,6 +85,9 @@ const convertMatchDbObject = (objectItem) => {
     matchId: objectItem.match_id,
     match: objectItem.match,
     year: objectItem.year,
+    score: objectItem.score,
+    fours: objectItem.fours,
+    sixes: objectItem.sixes,
   };
 };
 
@@ -98,7 +101,7 @@ app.get("/matches/:matchId", async (request, response) => {
        WHERE match_id = ${matchId};`;
 
   const match = await db.get(getPlayerQuery);
-  response.send(match);
+  response.send(convertMatchDbObject(match));
 });
 
 //API5
@@ -112,7 +115,7 @@ app.get("/players/:playerId/matches", async (request, response) => {
            match_id=${matchId};`;
 
   const playerMatchDetails = await db.all(getPlayerMatchQuery);
-  response.send(playerMatchDetails);
+  response.send(convertMatchDbObject(playerMatchDetails));
 });
 
 //API6
@@ -125,7 +128,7 @@ app.get("/matches/:matchId/players", async (request, response) => {
            player_id=${playerId};`;
 
   const matchPlayerDetails = await db.all(getPlayerMatchQuery);
-  response.send(matchPlayerDetails);
+  response.send(convertMatchDbObject(matchPlayerDetails));
 });
 //API7
 
@@ -133,16 +136,18 @@ app.get("/players/:playerId/playerScores", async (request, response) => {
   const { playerId } = request.params;
   const getPlayerAndScoreQuery = `
         SELECT 
-        playerId,
-        playerName,
-        SUM(score) AS totalScore,
-        SUM(fours) AS totalFours,
-        SUM(sixes) AS totalSixes
-        FROM player_match_score
-        ORDER DY 
-        player_id =${playerId};`;
-  const playersScoreArray = await db.all(getPlayerAndScoreQuery);
-  response.send(playersScoreArray);
+        player_details.player_id AS playerId,
+        player_details.player_name AS playerName,
+        SUM(player_match_score.score) AS totalScore,
+        SUM(player_match_score.fours) AS totalFours,
+        SUM(player_match_score.sixes) AS totalSixes
+        FROM player_match_score INNER JOIN player_details 
+        ON player_match_score.player_id = player_details.player_id
+        WHERE player_match_score.player_id ='${playerId}'
+        GROUP BY  
+       player_match_score.player_id;`;
+  const playersScoreArray = await db.get(getPlayerAndScoreQuery);
+  response.send(convertMatchDbObject(playersScoreArray));
 });
 
 module.exports = app;
