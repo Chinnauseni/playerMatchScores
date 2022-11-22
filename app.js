@@ -51,6 +51,12 @@ app.get("/players/", async (request, response) => {
 
 //Return a specific player
 //API2
+const convertDbObjects = (objectItem) => {
+  return {
+    playerId: objectItem.player_id,
+    playerName: objectItem.player_name,
+  };
+};
 
 app.get("/players/:playerId", async (request, response) => {
   const { playerId } = request.params;
@@ -60,7 +66,7 @@ app.get("/players/:playerId", async (request, response) => {
        WHERE player_id = ${playerId};`;
 
   const player = await db.get(getPlayerQuery);
-  response.send(convertDbObject(player));
+  response.send(convertDbObjects(player));
 });
 //API3
 
@@ -106,6 +112,17 @@ app.get("/matches/:matchId", async (request, response) => {
 
 //API5
 
+const convertMatchDbObjects = (objectItem) => {
+  return {
+    matchId: objectItem.match_id,
+    match: objectItem.match,
+    year: objectItem.year,
+    score: objectItem.score,
+    fours: objectItem.fours,
+    sixes: objectItem.sixes,
+  };
+};
+
 app.get("/players/:playerId/matches", async (request, response) => {
   const { matchId } = request.params;
   const getPlayerMatchQuery = `
@@ -115,10 +132,21 @@ app.get("/players/:playerId/matches", async (request, response) => {
            match_id=${matchId};`;
 
   const playerMatchDetails = await db.all(getPlayerMatchQuery);
-  response.send(convertMatchDbObject(playerMatchDetails));
+  response.send(convertMatchDbObjects(playerMatchDetails));
 });
 
 //API6
+
+const convertsMatchDbObject = (objectItem) => {
+  return {
+    matchId: objectItem.match_id,
+    match: objectItem.match,
+    year: objectItem.year,
+    score: objectItem.score,
+    fours: objectItem.fours,
+    sixes: objectItem.sixes,
+  };
+};
 app.get("/matches/:matchId/players", async (request, response) => {
   const { playerId } = request.params;
   const getPlayerMatchQuery = `
@@ -128,9 +156,20 @@ app.get("/matches/:matchId/players", async (request, response) => {
            player_id=${playerId};`;
 
   const matchPlayerDetails = await db.all(getPlayerMatchQuery);
-  response.send(convertMatchDbObject(matchPlayerDetails));
+  response.send(convertsMatchDbObject(matchPlayerDetails));
 });
 //API7
+
+const convertMatchesDbObject = (objectItem) => {
+  return {
+    matchId: objectItem.match_id,
+    match: objectItem.match,
+    year: objectItem.year,
+    score: objectItem.score,
+    fours: objectItem.fours,
+    sixes: objectItem.sixes,
+  };
+};
 
 app.get("/players/:playerId/playerScores", async (request, response) => {
   const { playerId } = request.params;
@@ -147,7 +186,7 @@ app.get("/players/:playerId/playerScores", async (request, response) => {
         GROUP BY  
        player_match_score.player_id;`;
   const playersScoreArray = await db.get(getPlayerAndScoreQuery);
-  response.send(convertMatchDbObject(playersScoreArray));
+  response.send(convertMatchesDbObject(playersScoreArray));
 });
 
 module.exports = app;
