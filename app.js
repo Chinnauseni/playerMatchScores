@@ -1,37 +1,33 @@
 const express = require("express");
-
 const { open } = require("sqlite");
-
 const sqlite3 = require("sqlite3");
-
 const path = require("path");
 
-const app = express();
-app.use(express.json());
+const databasePath = path.join(__dirname, "cricketMatchDetails.db");
 
-const dbPath = path.join(__dirname, "cricketMatchDetails.db");
+const app = express();
+
+app.use(express.json());
 
 let database = null;
 
-const initializeDBAndServer = async () => {
+const initializeDbAndServer = async () => {
   try {
     database = await open({
-      filename: dbPath,
+      filename: databasePath,
       driver: sqlite3.Database,
     });
-    app.listen(4000, () => {
-      console.log("Server is Running on http://localhost:4000/");
-    });
+
+    app.listen(4000, () =>
+      console.log("Server Running at http://localhost:4000/")
+    );
   } catch (error) {
-    console.log(`DB Error:${error.message}`);
+    console.log(`DB Error: ${error.message}`);
     process.exit(1);
   }
 };
 
-initializeDBAndServer();
-
-// Get a list of players
-//API1
+initializeDbAndServer();
 
 const convertPlayerDbObjectToResponseObject = (dbObject) => {
   return {
@@ -139,7 +135,7 @@ app.get("/matches/:matchId/players", async (request, response) => {
 
 app.get("/players/:playerId/playerScores/", async (request, response) => {
   const { playerId } = request.params;
-  const getmatchPlayersQuery = `
+  const getMatchPlayersQuery = `
     SELECT
       player_id AS playerId,
       player_name AS playerName,
@@ -150,6 +146,8 @@ app.get("/players/:playerId/playerScores/", async (request, response) => {
       NATURAL JOIN player_details
     WHERE
       player_id = ${playerId};`;
-  const playersMatchDetails = await database.get(getmatchPlayersQuery);
+  const playersMatchDetails = await database.get(getMatchPlayersQuery);
   response.send(playersMatchDetails);
 });
+
+module.exports = app;
